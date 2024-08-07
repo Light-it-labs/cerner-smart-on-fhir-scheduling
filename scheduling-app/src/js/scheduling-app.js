@@ -35,9 +35,11 @@ function slotSearch() {
         // If any Slots matched the criteria, display them
         if (slots.length) {
           var slotsHTML = '';
+          const [system, code] = slotParams['service-type'].split('|C');
+          var serviceType = slot.serviceType[0].coding.find((st) => st.code === code);
 
           slots.forEach(function (slot) {
-            slotsHTML = slotsHTML + slotHTML(slot.id, slot.serviceType[0].text, slot.start, slot.end, slotParams['-location']);
+            slotsHTML = slotsHTML + slotHTML(slot.id, serviceType, slot.start, slot.end, slotParams['-location']);
           });
 
           renderSlots(slotsHTML);
@@ -58,8 +60,8 @@ function slotSearch() {
   });
 }
 
-function slotHTML(id, type, start, end, locationId) {
-  console.log('Slot: id:[' + id + '] type:[' + type + '] start:[' + start + '] end:[' + end + ']');
+function slotHTML(id, serviceType, start, end, locationId) {
+  console.log('Slot: id:[' + id + '] type:[' + serviceType.display + '] start:[' + start + '] end:[' + end + ']');
 
   var slotReference = 'Slot/' + id,
     prettyStart = new Date(start),
@@ -67,11 +69,11 @@ function slotHTML(id, type, start, end, locationId) {
 
   return "<div class='card'>" +
     "<div class='card-body'>" +
-    "<h5 class='card-title'>" + type + '</h5>' +
+    "<h5 class='card-title'>" + serviceType.display + '</h5>' +
     "<p class='card-text'>Start: " + prettyStart + '</p>' +
     "<p class='card-text'>End: " + prettyEnd + '</p>' +
     "<a href='javascript:void(0);' class='card-link' onclick='appointmentCreate(\"" +
-    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\", \"" + start + "\",\"" + end + "\");'>Book</a>" +
+    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\", \"" + start + "\",\"" + end + "\",\"" + serviceType.system + "\",\"" + serviceType.code + "\",\"" + serviceType.display + "\");'>Book</a>" +
     '</div>' +
     '</div>';
 }
@@ -98,12 +100,12 @@ $('#clear-appointment').on('click', function (e) {
   $('#appointment-holder-row').hide();
 });
 
-function appointmentCreate(slotReference, patientReference, locationReference, start, end) {
+function appointmentCreate(slotReference, patientReference, locationReference, start, end, systemTypeSystem, systemTypeCode, systemTypeDisplay) {
   clearUI();
   $('#loading-row').show();
-  console.log('appointmentCreate params: ', slotReference, patientReference, locationReference, start, end);
+  console.log('appointmentCreate params: ', slotReference, patientReference, locationReference, start, end, systemTypeSystem, systemTypeCode, systemTypeDisplay);
 
-  var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference, start, end);
+  var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference, start, end, systemTypeSystem, systemTypeCode, systemTypeDisplay);
   console.log('Appointment Body: ', appointmentBody);
 
   // FHIR.oauth2.ready handles refreshing access tokens
@@ -125,7 +127,7 @@ function appointmentCreate(slotReference, patientReference, locationReference, s
   });
 }
 
-function appointmentJSON(slotReference, patientReference, locationReference, start, end) {
+function appointmentJSON(slotReference, patientReference, locationReference, start, end, systemTypeSystem, systemTypeCode, systemTypeDisplay) {
   return {
     resourceType: 'Appointment',
     slot: [
@@ -142,7 +144,7 @@ function appointmentJSON(slotReference, patientReference, locationReference, sta
       },
       {
         actor: {
-          reference: locationReference  // Replace with actual Location ID
+          reference: locationReference
         },
         status: "needs-action"
       }
@@ -151,6 +153,17 @@ function appointmentJSON(slotReference, patientReference, locationReference, sta
       {
         start: start,
         end: end
+      }
+    ],
+    "serviceType": [
+      {
+        "coding": [
+          {
+            "system": systemTypeSystem,
+            "code": systemTypeCode,
+            "display": systemTypeDisplay
+          }
+        ]
       }
     ],
     status: 'proposed'
