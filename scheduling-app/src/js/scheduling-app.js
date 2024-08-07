@@ -103,7 +103,7 @@ function appointmentCreate(slotReference, patientReference, locationReference, s
   $('#loading-row').show();
   console.log('appointmentCreate params: ', slotReference, patientReference, locationReference, start, end);
 
-  var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference);
+  var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference, start, end);
   console.log('Appointment Body: ', appointmentBody);
 
   // FHIR.oauth2.ready handles refreshing access tokens
