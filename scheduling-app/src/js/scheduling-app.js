@@ -144,7 +144,7 @@ function appointmentJSON(slotReference, patientReference, locationReference) {
         actor: {
           reference: locationReference  // Replace with actual Location ID
         },
-        status: "accepted"  // or another appropriate status
+        status: "needs-action"
       }
     ],
     status: 'proposed'
