@@ -22,6 +22,7 @@ function slotSearch() {
   }
   // Appointment start date and appointment end date need to both be set in query parameter 'start'
   slotParams['start'] = { $ge: form.elements['date-start'].value+'T00:00:00Z', $lt: form.elements['date-end'].value+'T00:00:00Z' };
+  slotParams['service-type'] = slotParams['slot-type'];
   console.log('Slot Search slotParams: ', slotParams);
   FHIR.oauth2.ready(function (smart) {
     console.log('Slot Search FHIR.oauth2.ready');
