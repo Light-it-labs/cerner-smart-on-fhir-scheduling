@@ -36,9 +36,9 @@ function slotSearch() {
         if (slots.length) {
           var slotsHTML = '';
           const [system, code] = slotParams['service-type'].split('|C');
-          var serviceType = slot.serviceType[0].coding.find((st) => st.code === code);
 
           slots.forEach(function (slot) {
+            var serviceType = slot.serviceType[0].coding.find((st) => st.code === code);
             slotsHTML = slotsHTML + slotHTML(slot.id, serviceType, slot.start, slot.end, slotParams['-location']);
           });
 
