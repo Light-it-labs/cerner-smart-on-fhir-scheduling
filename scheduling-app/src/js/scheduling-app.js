@@ -71,7 +71,7 @@ function slotHTML(id, type, start, end, locationId) {
     "<p class='card-text'>Start: " + prettyStart + '</p>' +
     "<p class='card-text'>End: " + prettyEnd + '</p>' +
     "<a href='javascript:void(0);' class='card-link' onclick='appointmentCreate(\"" +
-    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\");'>Book</a>" +
+    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\", " + start + "," + end + ");'>Book</a>" +
     '</div>' +
     '</div>';
 }
@@ -98,10 +98,10 @@ $('#clear-appointment').on('click', function (e) {
   $('#appointment-holder-row').hide();
 });
 
-function appointmentCreate(slotReference, patientReference, locationReference) {
+function appointmentCreate(slotReference, patientReference, locationReference, start, end) {
   clearUI();
   $('#loading-row').show();
-  console.log('appointmentCreate params: ', slotReference, patientReference, locationReference);
+  console.log('appointmentCreate params: ', slotReference, patientReference, locationReference, start, end);
 
   var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference);
   console.log('Appointment Body: ', appointmentBody);
@@ -125,7 +125,7 @@ function appointmentCreate(slotReference, patientReference, locationReference) {
   });
 }
 
-function appointmentJSON(slotReference, patientReference, locationReference) {
+function appointmentJSON(slotReference, patientReference, locationReference, start, end) {
   return {
     resourceType: 'Appointment',
     slot: [
@@ -145,6 +145,12 @@ function appointmentJSON(slotReference, patientReference, locationReference) {
           reference: locationReference  // Replace with actual Location ID
         },
         status: "needs-action"
+      }
+    ],
+    requestedPeriod: [
+      {
+        start: start,  
+        end: end   
       }
     ],
     status: 'proposed'
