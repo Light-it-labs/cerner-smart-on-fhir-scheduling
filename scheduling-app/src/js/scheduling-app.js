@@ -138,16 +138,16 @@ function appointmentJSON(slotReference, patientReference, locationReference, sta
     participant: [
       {
         actor: {
+          reference: locationReference
+        },
+        status: "accepted"
+      },
+      {
+        actor: {
           reference: patientReference
         },
         status: 'accepted'
       },
-      {
-        actor: {
-          reference: locationReference
-        },
-        status: "accepted"
-      }
     ],
     requestedPeriod: [
       {
