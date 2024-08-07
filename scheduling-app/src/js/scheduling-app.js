@@ -71,7 +71,7 @@ function slotHTML(id, type, start, end, locationId) {
     "<p class='card-text'>Start: " + prettyStart + '</p>' +
     "<p class='card-text'>End: " + prettyEnd + '</p>' +
     "<a href='javascript:void(0);' class='card-link' onclick='appointmentCreate(\"" +
-    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\", " + start + "," + end + ");'>Book</a>" +
+    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\", \"" + start + "\",\"" + end + "\");'>Book</a>" +
     '</div>' +
     '</div>';
 }
@@ -149,8 +149,8 @@ function appointmentJSON(slotReference, patientReference, locationReference, sta
     ],
     requestedPeriod: [
       {
-        start: start,  
-        end: end   
+        start: start,
+        end: end
       }
     ],
     status: 'proposed'
