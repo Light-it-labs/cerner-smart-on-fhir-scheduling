@@ -166,7 +166,7 @@ function appointmentJSON(slotReference, patientReference, locationReference, sta
         ]
       }
     ],
-    status: 'proposed'
+    status: 'booked'
   };
 }
 

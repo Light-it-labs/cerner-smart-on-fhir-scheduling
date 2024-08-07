@@ -3875,7 +3875,6 @@ EventEmitter.prototype.emit = function(type) {
     }
   }
 
-  handler = this._events[type];
 
   if (isUndefined(handler))
     return false;
