@@ -35,7 +35,7 @@ function slotSearch() {
         // If any Slots matched the criteria, display them
         if (slots.length) {
           var slotsHTML = '';
-          const [system, code] = slotParams['service-type'].split('|C');
+          const [system, code] = slotParams['service-type'].split('|');
 
           slots.forEach(function (slot) {
             var serviceType = slot.serviceType[0].coding.find((st) => st.code === code);
