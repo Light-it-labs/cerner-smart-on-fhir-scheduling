@@ -21,7 +21,7 @@ function slotSearch() {
     slotParams[form.elements[i].name] = form.elements[i].value;
   }
   // Appointment start date and appointment end date need to both be set in query parameter 'start'
-  slotParams['start'] = { $ge: form.elements['date-start'].value+'T00:00:00Z', $lt: form.elements['date-end'].value+'T00:00:00Z' };
+  slotParams['start'] = { $ge: form.elements['date-start'].value + 'T00:00:00Z', $lt: form.elements['date-end'].value + 'T00:00:00Z' };
   slotParams['service-type'] = slotParams['slot-type'];
   console.log('Slot Search slotParams: ', slotParams);
   FHIR.oauth2.ready(function (smart) {
@@ -37,7 +37,7 @@ function slotSearch() {
           var slotsHTML = '';
 
           slots.forEach(function (slot) {
-            slotsHTML = slotsHTML + slotHTML(slot.id, slot.serviceType[0].text, slot.start, slot.end);
+            slotsHTML = slotsHTML + slotHTML(slot.id, slot.serviceType[0].text, slot.start, slot.end, slotParams['-location']);
           });
 
           renderSlots(slotsHTML);
@@ -58,22 +58,22 @@ function slotSearch() {
   });
 }
 
-function slotHTML(id, type, start, end) {
+function slotHTML(id, type, start, end, locationId) {
   console.log('Slot: id:[' + id + '] type:[' + type + '] start:[' + start + '] end:[' + end + ']');
 
   var slotReference = 'Slot/' + id,
-      prettyStart = new Date(start),
-      prettyEnd = new Date(end);
+    prettyStart = new Date(start),
+    prettyEnd = new Date(end);
 
   return "<div class='card'>" +
-           "<div class='card-body'>" +
-             "<h5 class='card-title'>" + type + '</h5>' +
-             "<p class='card-text'>Start: " + prettyStart + '</p>' +
-             "<p class='card-text'>End: " + prettyEnd + '</p>' +
-             "<a href='javascript:void(0);' class='card-link' onclick='appointmentCreate(\"" +
-               slotReference + "\", \"Patient/12508016\");'>Book</a>" +
-           '</div>' +
-         '</div>';
+    "<div class='card-body'>" +
+    "<h5 class='card-title'>" + type + '</h5>' +
+    "<p class='card-text'>Start: " + prettyStart + '</p>' +
+    "<p class='card-text'>End: " + prettyEnd + '</p>' +
+    "<a href='javascript:void(0);' class='card-link' onclick='appointmentCreate(\"" +
+    slotReference + "\", \"Patient/12508016\", \"Location/" + locationId + "\");'>Book</a>" +
+    '</div>' +
+    '</div>';
 }
 
 function renderSlots(slotsHTML) {
@@ -93,28 +93,30 @@ function clearUI() {
   $('#patient-search-create-row').hide();
 };
 
-$('#clear-appointment').on('click', function(e) {
+$('#clear-appointment').on('click', function (e) {
   $('#appointment').html('');
   $('#appointment-holder-row').hide();
 });
 
-function appointmentCreate(slotReference, patientReference) {
+function appointmentCreate(slotReference, patientReference, locationReference) {
   clearUI();
   $('#loading-row').show();
+  console.log('appointmentCreate params: ', slotReference, patientReference, locationReference);
 
-  var appointmentBody = appointmentJSON(slotReference, patientReference);
+  var appointmentBody = appointmentJSON(slotReference, patientReference, locationReference);
+  console.log('Appointment Body: ', appointmentBody);
 
   // FHIR.oauth2.ready handles refreshing access tokens
-  FHIR.oauth2.ready(function(smart) {
-    smart.api.create({resource: appointmentBody}).then(
+  FHIR.oauth2.ready(function (smart) {
+    smart.api.create({ resource: appointmentBody }).then(
 
       // Display Appointment information if the call succeeded
-      function(appointment) {
+      function (appointment) {
         renderAppointment(appointment.headers('Location'));
       },
 
       // Display 'Failed to write Appointment to FHIR server' if the call failed
-      function() {
+      function () {
         clearUI();
         $('#errors').html('<p>Failed to write Appointment to FHIR server</p>');
         $('#errors-row').show();
@@ -123,7 +125,7 @@ function appointmentCreate(slotReference, patientReference) {
   });
 }
 
-function appointmentJSON(slotReference, patientReference) {
+function appointmentJSON(slotReference, patientReference, locationReference) {
   return {
     resourceType: 'Appointment',
     slot: [
@@ -137,6 +139,12 @@ function appointmentJSON(slotReference, patientReference) {
           reference: patientReference
         },
         status: 'needs-action'
+      },
+      {
+        actor: {
+          reference: locationReference  // Replace with actual Location ID
+        },
+        status: "accepted"  // or another appropriate status
       }
     ],
     status: 'proposed'
